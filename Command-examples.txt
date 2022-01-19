@@ -1,0 +1,19 @@
+Connect to yahoo prompting for password
+$yahoo = Connect-POP3 -server pop.mail.yahoo.com -username username -port 995 -enableSSL $true
+
+Disconnect session and close connect; delete marked messages
+Disconnect-POP3 -session $yahoo
+
+Get the list of messages from yahoo
+Get-pop3uidl -session $yahoo
+
+Download the 3rd message as a PSObject
+Get-POP3Message -session $yahoo -index 3
+
+Mark the 3rd message for deletion
+Erase-POP3Message -session $yahoo -index 3
+
+Close the session the delete marked messages
+Disconnect-POP3 -session $yahoo
+
+
