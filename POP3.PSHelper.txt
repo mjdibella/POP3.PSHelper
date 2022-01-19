@@ -17,11 +17,11 @@ Get-POP3RawMessage: retreive all messages in mailbox as unparsed string or only 
 	-session mandatory, pop3 session variable
 	-index optional, message number to retreive
 
-Remove-POP3Message: delete specified numbered message from mailbox
+Remove-POP3Message: mark numbered message with index specified on pipline or by parameter for deletion
 	-session mandatory, pop3 session variable
 	-index mandatory, message number to retreive
 
-Clear-POP3Mailbox: delete all messages in mailbox
+Clear-POP3Mailbox: mark all messages in mailbox for deletion
 	-session mandatory, pop3 session variable
 
 Reset-POP3Mailbox: resets all messagess marked for deletion
