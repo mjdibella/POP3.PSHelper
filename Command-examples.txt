@@ -10,6 +10,9 @@ Get-pop3uidl -session $yahoo
 Download the 3rd message as a PSObject
 Get-POP3Message -session $yahoo -index 3
 
+Download the 3rd message and save save as messsage.eml
+Get-POP3RawMessage -session $yahoo -index 3 | Out-file .\message.eml
+
 Mark the 3rd message for deletion
 Remove-POP3Message -session $yahoo -index 3
 
@@ -18,5 +21,3 @@ Get-POP3MessageHeader -session $yahoo | Where-object {$_.DateSent -lt (Get-Date)
 
 Close the session the delete marked messages
 Disconnect-POP3 -session $yahoo
-
-

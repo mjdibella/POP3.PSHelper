@@ -146,8 +146,8 @@ function Disconnect-POP3 {
     Param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session
     )
-    $session.Disconnect() | Out-Null
-    $session.Dispose() | Out-Null
+    $session.Disconnect()
+    $session.Dispose()
     Remove-Variable -Name session
 }
 

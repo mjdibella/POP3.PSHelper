@@ -13,7 +13,7 @@ Get-POP3MessageHeader: retreive headers for all messages in mailbox or only spec
 	-session mandatory, pop3 session variable
 	-index optional, message number to
 
-Get-POP3RawMessage: retreive all messages in mailbox as unparsed string or only specified numbered message
+Get-POP3RawMessage: retreive all messages in mailbox or only specified numbered message as unparsed string
 	-session mandatory, pop3 session variable
 	-index optional, message number to retreive
 
