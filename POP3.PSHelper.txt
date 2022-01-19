@@ -24,7 +24,6 @@ Remove-POP3Message: delete specified numbered message from mailbox
 Clear-POP3Mailbox: delete all messages in mailbox
 	-session mandatory, pop3 session variable
 
-
 Get-POP3Capabilites: retreive the mailbox capabilities list
 	-session mandatory, pop3 session variable
 
