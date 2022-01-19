@@ -71,11 +71,27 @@ function Get-POP3RawMessage {
 }
 
 function Remove-POP3Message {
-    Param(
+    [cmdletbinding()]
+    param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
-        [Parameter(Mandatory=$true)][int]$index
+        [Parameter(ValueFromPipeline,parameterSetName="fromPipeline")][PSObject[]]$messageObjects,    
+        [Parameter(Mandatory=$false,parameterSetName="byParam")][int]$index
     )
-    $session.deleteMessage($index)
+    begin {
+    }
+    process {
+        if ($_) {
+            foreach ($messageObject in $messageObjects) {
+                $session.deleteMessage($messageObject.index)
+            }
+        } else {
+            if ($index) {
+                $session.deleteMessage($index)
+            }
+        }
+    }
+    end {
+    }
 }
 
 function Clear-POP3Mailbox {
