@@ -16,56 +16,97 @@ function Connect-POP3 {
 }
 
 function Get-POP3Message {
-    Param(
+    [cmdletbinding()]
+    param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(ValueFromPipeline)][PSObject[]]$messageObjects,    
         [Parameter(Mandatory=$false)][int]$index
     )
-    if ($index) {
-        $incomingMessage = $session.getMessage($index)
-        $incomingMessage | Add-Member Noteproperty Index $index
-        $incomingMessage
-    } else {
-        $messageCount = $session.getMessageCount()
-        for ($index = $messageCount; $index -gt 0; $index--) {
-            $incomingMessage = $session.getMessage($index)
-            $incomingMessage | Add-Member Noteproperty Index $index
-            $incomingMessage
+    begin {
+    }
+    process {
+        if ($_) {
+            foreach ($messageObject in $messageObjects) {
+                $incomingMessage = $session.getMessage($messageObject.index)
+                $incomingMessage | Add-Member Noteproperty Index $messageObject.index
+                $incomingMessage
+            }
+        } else {
+            if ($index) {
+                $incomingMessage = $session.getMessage($index)
+                $incomingMessage | Add-Member Noteproperty Index $index
+                $incomingMessage
+            } else {
+                $messageCount = $session.getMessageCount()
+                for ($index = $messageCount; $index -gt 0; $index--) {
+                    $incomingMessage = $session.getMessage($index)
+                    $incomingMessage | Add-Member Noteproperty Index $index
+                    $incomingMessage
+                }
+            }
         }
     }
 }
 
 function Get-POP3MessageHeader {
-    Param(
+    [cmdletbinding()]
+    param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(ValueFromPipeline)][PSObject[]]$messageObjects,    
         [Parameter(Mandatory=$false)][int]$index
     )
-    if ($index) {
-        $incomingMessageHeaders = $session.getMessageHeaders($index)
-        $incomingMessageHeaders | Add-Member Noteproperty Index $index
-        $incomingMessageHeaders
-    } else {
-        $messageCount = $session.getMessageCount()
-        for ($index = $messageCount; $index -gt 0; $index--) {
-            $incomingMessageHeaders = $session.getMessageHeaders($index)
-            $incomingMessageHeaders | Add-Member Noteproperty Index $index
-            $incomingMessageHeaders
+    begin {
+    }
+    process {
+        if ($_) {
+            foreach ($messageObject in $messageObjects) {
+                $incomingMessageHeaders = $session.getMessageHeaders($messageObject.index)
+                $incomingMessageHeaders | Add-Member Noteproperty Index $messageObject.index
+                $incomingMessageHeaders
+            }
+        } else {
+            if ($index) {
+                $incomingMessageHeaders = $session.getMessageHeaders($index)
+                $incomingMessageHeaders | Add-Member Noteproperty Index $index
+                $incomingMessageHeaders
+            } else {
+                $messageCount = $session.getMessageCount()
+                for ($index = $messageCount; $index -gt 0; $index--) {
+                    $incomingMessageHeaders = $session.getMessageHeaders($index)
+                    $incomingMessageHeaders | Add-Member Noteproperty Index $index
+                    $incomingMessageHeaders
+                }
+            }
         }
     }
 }
 
 function Get-POP3RawMessage {
-    Param(
+    [cmdletbinding()]
+    param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(ValueFromPipeline)][PSObject[]]$messageObjects,    
         [Parameter(Mandatory=$false)][int]$index
     )
-    if ($index) {
-        $rawMessage = $session.getMessageAsBytes($index)
-        [System.Text.Encoding]::ASCII.GetString($rawMessage)
-    } else {
-        $messageCount = $session.getMessageCount()
-        for ($index = $messageCount; $index -gt 0; $index--) {
-            $rawMessage = $session.getMessageAsBytes($index)
-            [System.Text.Encoding]::ASCII.GetString($rawMessage)
+    begin {
+    }
+    process {
+        if ($_) {
+            foreach ($messageObject in $messageObjects) {
+                $rawMessage = $session.getMessageAsBytes($messageObject.index)
+                [System.Text.Encoding]::ASCII.GetString($rawMessage)
+            }
+        } else {
+            if ($index) {
+                $rawMessage = $session.getMessageAsBytes($index)
+                [System.Text.Encoding]::ASCII.GetString($rawMessage)
+            } else {
+                $messageCount = $session.getMessageCount()
+                for ($index = $messageCount; $index -gt 0; $index--) {
+                    $rawMessage = $session.getMessageAsBytes($index)
+                    [System.Text.Encoding]::ASCII.GetString($rawMessage)
+                }
+            }
         }
     }
 }
@@ -74,8 +115,8 @@ function Remove-POP3Message {
     [cmdletbinding()]
     param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
-        [Parameter(ValueFromPipeline,parameterSetName="fromPipeline")][PSObject[]]$messageObjects,    
-        [Parameter(Mandatory=$false,parameterSetName="byParam")][int]$index
+        [Parameter(ValueFromPipeline)][PSObject[]]$messageObjects,    
+        [Parameter(Mandatory=$false)][int]$index
     )
     begin {
     }
@@ -116,30 +157,47 @@ function Get-POP3Capabilities {
 }
 
 function Get-POP3UIDL {
-    Param(
+    param(
         [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(ValueFromPipeline)][PSObject[]]$messageObjects,    
         [Parameter(Mandatory=$false)][int]$index
     )
-    if ($index) {
-        $uid = $session.getMessageUID($index)
-        $size = $session.getMessageSize($index)
-        $results = New-Object PSObject
-        $results | Add-Member Noteproperty number $number
-        $results | Add-Member Noteproperty uid $uid
-        $result | Add-Member Noteproperty size $size
-    } else {
-        $messageCount = $session.getMessageCount()
-        for ($index = $messageCount; $index -gt 0; $index--) {
-            $uid = $session.getMessageUID($index)
-            $size = $session.getMessageSize($index)
-            $result = New-Object PSObject
-            $result | Add-Member Noteproperty number $index
-            $result | Add-Member Noteproperty uid $uid
-            $result | Add-Member Noteproperty size $size
-            $result
+    begin {
+    }
+    process {
+        if ($_) {
+            foreach ($messageObject in $messageObjects) {
+                $uid = $session.getMessageUID($messageObject.index)
+                $size = $session.getMessageSize($messageObject.index)
+                $result = New-Object PSObject
+                $result | Add-Member Noteproperty index $messageObject.index
+                $result | Add-Member Noteproperty uid $uid
+                $result | Add-Member Noteproperty size $size
+                $result
+            }
+        } else {
+            if ($index) {
+                $uid = $session.getMessageUID($index)
+                $size = $session.getMessageSize($index)
+                $result = New-Object PSObject
+                $result | Add-Member Noteproperty index $index
+                $result | Add-Member Noteproperty uid $uid
+                $result | Add-Member Noteproperty size $size
+                $result
+            } else {
+                $messageCount = $session.getMessageCount()
+                for ($index = $messageCount; $index -gt 0; $index--) {
+                    $uid = $session.getMessageUID($index)
+                    $size = $session.getMessageSize($index)
+                    $result = New-Object PSObject
+                    $result | Add-Member Noteproperty index $index
+                    $result | Add-Member Noteproperty uid $uid
+                    $result | Add-Member Noteproperty size $size
+                    $result
+                }
+            }
         }
     }
-    $results
 }
 
 function Disconnect-POP3 {

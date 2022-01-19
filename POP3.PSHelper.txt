@@ -5,15 +5,15 @@ Connect-POP3: connect to POP3 server, returns session variable
 	-port optional
 	-enableSSL optional boolean switch
 
-Get-POP3Message: retreive all messages in mailbox or only specified numbered message
+Get-POP3Message: retreive all messages in mailbox or with index specified on pipline or by parameter
 	-session mandatory, pop3 session variable
 	-index optional, message number to retreive
 
-Get-POP3MessageHeader: retreive headers for all messages in mailbox or only specified numbered message
+Get-POP3MessageHeader: retreive headers for all messages in mailbox or with index specified on pipline or by parameter
 	-session mandatory, pop3 session variable
 	-index optional, message number to
 
-Get-POP3RawMessage: retreive all messages in mailbox or only specified numbered message as unparsed string
+Get-POP3RawMessage: retreive all messages in mailbox or with index specified on pipline or by parameter as unparsed string
 	-session mandatory, pop3 session variable
 	-index optional, message number to retreive
 
@@ -30,7 +30,7 @@ Reset-POP3Mailbox: resets all messagess marked for deletion
 Get-POP3Capabilites: retreive the mailbox capabilities list
 	-session mandatory, pop3 session variable
 
-Get-POP3UIDL: retreive the mailbox message list
+Get-POP3UIDL: retreive the mailbox message information for all messages in mailbox with index specified on pipline or by parameter
 	-session mandatory, pop3 session variable
 
 Disconnect-POP3: disconnect from mailbox and end session
