@@ -1,5 +1,5 @@
 # POP3.PSHelper
-A PowerShell module with helpful cmdlets for accessing the POP3 servers.
+A PowerShell module with helpful cmdlets for accessing POP3 servers.
 
 Requires the openpop.dll .NET assemply from http://hpop.sourceforge.net/.
 
