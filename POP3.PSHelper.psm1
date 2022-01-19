@@ -6,85 +6,118 @@ function Connect-POP3 {
         [Parameter(Mandatory=$false)][int]$port = 110,
         [Parameter(Mandatory=$false)][bool]$enableSSL = $false
     )
-    $pop3Client = New-Object OpenPop.Pop3.Pop3Client
-    $pop3Client.connect( $server, $port, $enableSSL )
-    if (!$pop3Client.connected) {
+    $session = New-Object OpenPop.Pop3.pop3client
+    $session.connect( $server, $port, $enableSSL )
+    if (!$session.connected) {
         throw "Unable to create POP3 client. Connection failed with server $server"
     }
-    $pop3Client.authenticate( $username, $password )
-    return $pop3Client
+    $session.authenticate( $username, $password )
+    return $session
 }
 
 function Get-POP3Message {
     Param(
-        [Parameter(Mandatory=$true)][OpenPop.Pop3.Pop3Client]$pop3Client,
-        [Parameter(Mandatory=$false)][int]$messageIndex
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(Mandatory=$false)][int]$index
     )
-    if ($messageIndex) {
-        $incomingMessage = $pop3Client.getMessage($messageIndex)
+    if ($index) {
+        $incomingMessage = $session.getMessage($index)
+        $incomingMessage | Add-Member Noteproperty Index $index
         $incomingMessage
     } else {
-        $messageCount = $pop3Client.getMessageCount()
-        for ($messageIndex = $messageCount; $messageIndex -gt 0; $messageIndex--) {
-            $incomingMessage = $pop3Client.getMessage($messageIndex)
+        $messageCount = $session.getMessageCount()
+        for ($index = $messageCount; $index -gt 0; $index--) {
+            $incomingMessage = $session.getMessage($index)
+            $incomingMessage | Add-Member Noteproperty Index $index
             $incomingMessage
+        }
+    }
+}
+
+function Get-POP3MessageHeader {
+    Param(
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(Mandatory=$false)][int]$index
+    )
+    if ($index) {
+        $incomingMessageHeaders = $session.getMessageHeaders($index)
+        $incomingMessageHeaders | Add-Member Noteproperty Index $index
+        $incomingMessageHeaders
+    } else {
+        $messageCount = $session.getMessageCount()
+        for ($index = $messageCount; $index -gt 0; $index--) {
+            $incomingMessageHeaders = $session.getMessageHeaders($index)
+            $incomingMessageHeaders | Add-Member Noteproperty Index $index
+            $incomingMessageHeaders
+        }
+    }
+}
+
+function Get-POP3RawMessage {
+    Param(
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(Mandatory=$false)][int]$index
+    )
+    if ($index) {
+        $rawMessage = $session.getMessageAsBytes($index)
+        [System.Text.Encoding]::ASCII.GetString($rawMessage)
+    } else {
+        $messageCount = $session.getMessageCount()
+        for ($index = $messageCount; $index -gt 0; $index--) {
+            $rawMessage = $session.getMessageAsBytes($index)
+            [System.Text.Encoding]::ASCII.GetString($rawMessage)
         }
     }
 }
 
 function Remove-POP3Message {
     Param(
-        [Parameter(Mandatory=$true)][OpenPop.Pop3.Pop3Client]$pop3Client,
-        [Parameter(Mandatory=$true)][int]$messageIndex
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(Mandatory=$true)][int]$index
     )
-    $pop3Client.deleteMessage($messageIndex)
+    $session.deleteMessage($index)
 }
 
 function Clear-POP3Mailbox {
     Param(
-        [Parameter(Mandatory=$true)][OpenPop.Pop3.Pop3Client]$pop3Client
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session
     )
-    $pop3Client.deleteAllMessages
+    $session.deleteAllMessages()
 }
 
-function ConvertTo-MIMEMessage {
-    [cmdletbinding()]
-    param(
-        [Parameter(ValueFromPipeline)][string[]]$messages
+function Reset-POP3Mailbox {
+    Param(
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session
     )
-    begin {
-    }
-    process {
-        foreach ($message in $messages) {
-            $inStream = New-Object IO.FileStream $message,"Open"
-            $mimemessage = [OpenPop.Mime.Message]::load( $inStream )
-            $inStream.close()
-            $mimemessage
-        }
-    }
-    end {
-    }
+    $session.reset()
+}
+
+function Get-POP3Capabilities {
+    Param(
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session
+    )
+    $session.capabilities()
 }
 
 function Get-POP3UIDL {
     Param(
-        [Parameter(Mandatory=$true)][OpenPop.Pop3.Pop3Client]$pop3Client,
-        [Parameter(Mandatory=$false)][int]$messageIndex
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session,
+        [Parameter(Mandatory=$false)][int]$index
     )
-    if ($messageIndex) {
-        $uid = $pop3Client.getMessageUID($messageIndex)
-        $size = $pop3Client.getMessageSize($messageIndex)
+    if ($index) {
+        $uid = $session.getMessageUID($index)
+        $size = $session.getMessageSize($index)
         $results = New-Object PSObject
         $results | Add-Member Noteproperty number $number
         $results | Add-Member Noteproperty uid $uid
         $result | Add-Member Noteproperty size $size
     } else {
-        $messageCount = $pop3Client.getMessageCount()
-        for ($messageIndex = $messageCount; $messageIndex -gt 0; $messageIndex--) {
-            $uid = $pop3Client.getMessageUID($messageIndex)
-            $size = $pop3Client.getMessageSize($messageIndex)
+        $messageCount = $session.getMessageCount()
+        for ($index = $messageCount; $index -gt 0; $index--) {
+            $uid = $session.getMessageUID($index)
+            $size = $session.getMessageSize($index)
             $result = New-Object PSObject
-            $result | Add-Member Noteproperty number $messageIndex
+            $result | Add-Member Noteproperty number $index
             $result | Add-Member Noteproperty uid $uid
             $result | Add-Member Noteproperty size $size
             $result
@@ -95,11 +128,11 @@ function Get-POP3UIDL {
 
 function Disconnect-POP3 {
     Param(
-        [Parameter(Mandatory=$true)][OpenPop.Pop3.Pop3Client]$pop3Client
+        [Parameter(Mandatory=$true)][OpenPop.Pop3.pop3client]$session
     )
-    $pop3Client.Disconnect | Out-Null
-    $pop3Client.Dispose | Out-Null
-    Remove-Variable -Name pop3Client
+    $session.Disconnect() | Out-Null
+    $session.Dispose() | Out-Null
+    Remove-Variable -Name session
 }
 
 [Reflection.Assembly]::LoadFile($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("OpenPop.dll"))
