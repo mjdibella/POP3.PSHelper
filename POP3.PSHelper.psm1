@@ -209,4 +209,17 @@ function Disconnect-POP3 {
     Remove-Variable -Name session
 }
 
-[Reflection.Assembly]::LoadFile($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("OpenPop.dll"))
+$moduleName = $executionContext.sessionState.module
+foreach ($modulePath in $($env:PSModulePath).Split(";")) {  
+    $loaded = $False
+    $dllPath = "$($modulePath.TrimEnd("\"))\$moduleName\OpenPop.dll"
+    if ([System.IO.File]::Exists($dllPath)) {
+        [Reflection.Assembly]::LoadFile($dllPath)
+        $loaded = $True
+        break
+    }
+}
+if (-not $loaded) {
+    Write-warning "Required file missing from module path."
+}
+Write-host "Cmdlets added:`n$(Get-Command | where {$_.ModuleName -eq $moduleName})`n"
